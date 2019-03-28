@@ -120,7 +120,43 @@ for(size_t t = 0 ; t <= 63 ; t++)
     uint32_t g = context->h[6];
     uint32_t h = context->h[7];
 
- 
+  //Initialize working variables to current hash value:
+   // a := h0
+   // b := h1
+   // c := h2
+   // d := h3
+   // e := h4
+   // f := h5
+   // g := h6
+   // h := h7
+
+  // Compression function main loop:
+  //  for i from 0 to 63
+  //      S1 := (e rightrotate 6) xor (e rightrotate 11) xor (e rightrotate 25)
+  //      ch := (e and f) xor ((not e) and g)
+  //      temp1 := h + S1 + ch + k[i] + w[i]
+  //      S0 := (a rightrotate 2) xor (a rightrotate 13) xor (a rightrotate 22)
+   //     maj := (a and b) xor (a and c) xor (b and c)
+   //     temp2 := S0 + maj
+ //
+  //      h := g
+  //      g := f
+  //      f := e
+//e := d + temp1
+   //     d := c
+  //      c := b
+  //      b := a
+   //     a := temp1 + temp2
+
+   // Add the compressed chunk to the current hash value:
+  //  h0 := h0 + a
+  //  h1 := h1 + b
+  //  h2 := h2 + c
+  //  h3 := h3 + d
+  //  h4 := h4 + e
+  //  h5 := h5 + f
+  //  h6 := h6 + g
+  //  h7 := h7 + h
 
 
 
