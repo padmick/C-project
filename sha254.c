@@ -80,4 +80,13 @@ static const uint8_t padding[64] =
 sha256Context Context;
 Sha256_Init(&Context);
 
+// add k as 0 bits and append l
+uint64_t l = context->totalSize * 8;
+size_t k = 0;
+if( l%512 < 448)
+     k = 448 - l%512;
+else
+    k = 512 + 448 - l%512;
+
+
 }
