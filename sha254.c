@@ -11,7 +11,8 @@ int main()
 }
 
 sha256(){
-
+void Sha256_Init(sha256Context *context);
+static void Sha256_ProcessBlock(sha256Context *context);
 //sudocde from https://en.wikipedia.org/wiki/SHA-2 
 //Initialize hash values:
 //(first 32 bits of the fractional parts of the square roots of the first 8 primes 2..19):
@@ -23,20 +24,20 @@ sha256(){
 //h5 := 0x9b05688c
 //h6 := 0x1f83d9ab
 //h7 := 0x5be0cd19
+context->h[0] = 0x6A09E667;
+context->h[1] = 0xBB67AE85;
+context->h[2] = 0x3C6EF372;
+context->h[3] = 0xA54FF53A;
+context->h[4] = 0x510E527F;
+context->h[5] = 0x9B05688C;
+context->h[6] = 0x1F83D9AB;
+context->h[7] = 0x5BE0CD19;
 
 // FIPS PUB 180-4 -- 5.3.3
 //
 // Initial hash value
 // "These words were obtained by taking the first thirty-two bits of the fractional parts of the square
 //  roots of the first eight prime numbers"
-h[0] = 0x6A09E667;
-h[1] = 0xBB67AE85;
-h[2] = 0x3C6EF372;
-h[3] = 0xA54FF53A;
-h[4] = 0x510E527F;
-h[5] = 0x9B05688C;
-h[6] = 0x1F83D9AB;
-h[7] = 0x5BE0CD19;
 
 //Initialize array of round constants:
 //(first 32 bits of the fractional parts of the cube roots of the first 64 primes 2..311):
@@ -61,4 +62,22 @@ static const uint32_t k[64] =
     0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
     0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
 };
+
+//Pre-processing (Padding):
+//begin with the original message of length L bits
+//append a single '1' bit
+//append K '0' bits, where K is the minimum number >= 0 such that L + 1 + K + 64 is a multiple of 512
+//append L as a 64-bit big-endian integer, making the total post-processed length a multiple of 512 bits
+
+static const uint8_t padding[64] =
+{
+    0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+sha256Context Context;
+Sha256_Init(&Context);
+
 }
