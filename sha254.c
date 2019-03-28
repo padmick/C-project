@@ -89,4 +89,39 @@ else
     k = 512 + 448 - l%512;
 
 
+//Process the message in successive 512-bit chunks:
+//break message into 512-bit chunks
+//for each chunk
+ //   create a 64-entry message schedule array w[0..63] of 32-bit words
+//    (The initial values in w[0..63] don't matter, so many implementations zero them here)
+ //   copy chunk into first 16 words w[0..15] of the message schedule array
+
+//   Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array:
+ //   for i from 16 to 63
+  //      s0 := (w[i-15] rightrotate 7) xor (w[i-15] rightrotate 18) xor (w[i-15] rightshift 3)
+  //      s1 := (w[i-2] rightrotate 17) xor (w[i-2] rightrotate 19) xor (w[i-2] rightshift 10)
+   //     w[i] := w[i-16] + s0 + w[i-7] + s1
+
+uint32_t w[64];
+for(size_t t = 0 ; t <= 63 ; t++)
+    {
+        if( t<=15 )
+            w[t] = betoh32(context->w[t]);
+        else
+            w[t] = SIGMA_LOWER_1(w[t-2]) + w[t-7] + SIGMA_LOWER_0(w[t-15]) + w[t-16];
+    }
+
+    uint32_t a = context->h[0];
+    uint32_t b = context->h[1];
+    uint32_t c = context->h[2];
+    uint32_t d = context->h[3];
+    uint32_t e = context->h[4];
+    uint32_t f = context->h[5];
+    uint32_t g = context->h[6];
+    uint32_t h = context->h[7];
+
+ 
+
+
+
 }
