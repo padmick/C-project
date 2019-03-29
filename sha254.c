@@ -11,7 +11,6 @@ int main()
 }
 
 sha256(){
-void Sha256_Init(sha256Context *context);
 static void Sha256_ProcessBlock(sha256Context *context);
 //sudocde from https://en.wikipedia.org/wiki/SHA-2 
 //Initialize hash values:
