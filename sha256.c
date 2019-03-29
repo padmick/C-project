@@ -25,11 +25,7 @@ static void Sha256_ProcessBlock(sha256Context *context);
 //h7 := 0x5be0cd19
 void Sha256_Init()
 {
-    // FIPS PUB 180-4 -- 5.3.3
-    //
-    // Initial hash value
-    // "These words were obtained by taking the first thirty-two bits of the fractional parts of the square
-    //  roots of the first eight prime numbers"
+
     context->h[0] = 0x6A09E667;
     context->h[1] = 0xBB67AE85;
     context->h[2] = 0x3C6EF372;
@@ -132,7 +128,7 @@ void Sha256_ProcessBlock()
         else
             w[t] = SIGMA_LOWER_1(w[t-2]) + w[t-7] + SIGMA_LOWER_0(w[t-15]) + w[t-16];
     }
-    
+
     uint32_t a = context->h[0];
     uint32_t b = context->h[1];
     uint32_t c = context->h[2];
