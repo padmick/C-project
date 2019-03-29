@@ -23,14 +23,27 @@ static void Sha256_ProcessBlock(sha256Context *context);
 //h5 := 0x9b05688c
 //h6 := 0x1f83d9ab
 //h7 := 0x5be0cd19
-context->h[0] = 0x6A09E667;
-context->h[1] = 0xBB67AE85;
-context->h[2] = 0x3C6EF372;
-context->h[3] = 0xA54FF53A;
-context->h[4] = 0x510E527F;
-context->h[5] = 0x9B05688C;
-context->h[6] = 0x1F83D9AB;
-context->h[7] = 0x5BE0CD19;
+void Sha256_Init()
+{
+    // FIPS PUB 180-4 -- 5.3.3
+    //
+    // Initial hash value
+    // "These words were obtained by taking the first thirty-two bits of the fractional parts of the square
+    //  roots of the first eight prime numbers"
+    context->h[0] = 0x6A09E667;
+    context->h[1] = 0xBB67AE85;
+    context->h[2] = 0x3C6EF372;
+    context->h[3] = 0xA54FF53A;
+    context->h[4] = 0x510E527F;
+    context->h[5] = 0x9B05688C;
+    context->h[6] = 0x1F83D9AB;
+    context->h[7] = 0x5BE0CD19;
+ 
+
+    context->size = 0;
+    
+    context->totalSize = 0;
+}
 
 // FIPS PUB 180-4 -- 5.3.3
 //
@@ -76,8 +89,14 @@ static const uint8_t padding[64] =
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-sha256Context Context;
-Sha256_Init(&Context);
+void Sha256_Compute()
+{
+    sha256Context Context;
+    
+    Sha256_Init(&Context);
+    Sha256_Update(&Context, data, len);
+    Sha256_Final(&Context, digest);
+}
 
 // add k as 0 bits and append l
 uint64_t l = context->totalSize * 8;
@@ -101,15 +120,19 @@ else
   //      s1 := (w[i-2] rightrotate 17) xor (w[i-2] rightrotate 19) xor (w[i-2] rightshift 10)
    //     w[i] := w[i-16] + s0 + w[i-7] + s1
 
-uint32_t w[64];
-for(size_t t = 0 ; t <= 63 ; t++)
+void Sha256_ProcessBlock()
+{
+    uint32_t w[64];     
+ 
+  
+    for(size_t t = 0 ; t <= 63 ; t++)
     {
         if( t<=15 )
             w[t] = betoh32(context->w[t]);
         else
             w[t] = SIGMA_LOWER_1(w[t-2]) + w[t-7] + SIGMA_LOWER_0(w[t-15]) + w[t-16];
     }
-
+    
     uint32_t a = context->h[0];
     uint32_t b = context->h[1];
     uint32_t c = context->h[2];
@@ -118,6 +141,35 @@ for(size_t t = 0 ; t <= 63 ; t++)
     uint32_t f = context->h[5];
     uint32_t g = context->h[6];
     uint32_t h = context->h[7];
+  
+
+    for(size_t t = 0; t <= 63; t++)
+    {
+        
+
+        uint32_t temp1 = h + SIGMA_UPPER_1(e) + CH(e, f, g) + k[t] + w[t];
+        uint32_t temp2 = SIGMA_UPPER_0(a) + MAJ(a, b, c);
+ 
+     
+        h = g;
+        g = f;
+        f = e;
+        e = d + temp1;
+        d = c;
+        c = b;
+        b = a;
+        a = temp1 + temp2;
+    }
+ 
+    context->h[0] += a;
+    context->h[1] += b;
+    context->h[2] += c;
+    context->h[3] += d;
+    context->h[4] += e;
+    context->h[5] += f;
+    context->h[6] += g;
+    context->h[7] += h;
+}
 
   //Initialize working variables to current hash value:
    // a := h0
