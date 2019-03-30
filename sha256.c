@@ -94,13 +94,60 @@ void Sha256_Compute()
     Sha256_Final(&Context, digest);
 }
 
-// add k as 0 bits and append l
-uint64_t l = context->totalSize * 8;
-size_t k = 0;
-if( l%512 < 448)
-     k = 448 - l%512;
-else
-    k = 512 + 448 - l%512;
+
+void Sha256_Update()
+{
+    while(len > 0)
+        size_t n = MIN(len, 64 - context->size);
+ 
+        memcpy(context->buffer + context->size, data, n);
+ 
+        context->size += n;
+        context->totalSize += n;
+        
+        data = (uint8_t *) data + n;
+        len -= n;
+ 
+        if(context->size == 64)
+        {
+            Sha256_ProcessBlock(context);
+            context->size = 0;
+        }
+    }
+}
+void Sha256_Final()
+ {
+    // FIPS PUB 180-4 -- 5
+    //
+    // Padding:
+    //
+    // 5.1 Padding the Message
+    // The purpose of this padding is to ensure that the padded message is a multiple of 512 or 1024
+    // bits, depending on the algorithm. Padding can be inserted before hash computation begins on a
+    // message, or at any other time during the hash computation prior to processing the block(s) that
+    // will contain the padding
+    //
+    // 5.1.1 SHA-1, SHA-224 and SHA-256
+ 
+    // Length of the original message before padding, in bits
+    uint64_t l = context->totalSize * 8;
+    size_t k = 0;
+ 
+    if( l%512 < 448)
+       k = 448 - l%512;
+    else
+       k = 512 + 448 - l%512;
+ 
+    Sha256_Update(context, padding, k/8 /* k is a counter of bits */);
+     context->w[14] = htobe32((uint32_t) (l >> 32));
+    context->w[15] = htobe32((uint32_t) l);
+ 
+    Sha256_ProcessBlock(context);
+ 
+    for(size_t i = 0; i < 8; i++) context->h[i] = htobe32(context->h[i]);
+ 
+    if(digest != NULL) memcpy(digest, context->digest, SHA256_DIGEST_SIZE);
+ }
 
 
 //Process the message in successive 512-bit chunks:
