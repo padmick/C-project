@@ -1,8 +1,18 @@
-#include <stdio.h>
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <endian.h>
+#include <stdio.h>
+#include "sha256.h"
+
+#define CH(x, y, z) (((x) & (y)) ^ (~(x) & (z)))
+#define MAJ(x, y, z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
+#define SHR32(x, n) (x >> n)
+#define ROR32(x, n) ((x >> n) | (x << (32 - n)))
+#define SIGMA_UPPER_0(x) (ROR32(x, 2) ^ ROR32(x, 13) ^ ROR32(x, 22))
+#define SIGMA_UPPER_1(x) (ROR32(x, 6) ^ ROR32(x, 11) ^ ROR32(x, 25))
+#define SIGMA_LOWER_0(x) (ROR32(x, 7) ^ ROR32(x, 18) ^ SHR32(x, 3))
+#define SIGMA_LOWER_1(x) (ROR32(x, 17) ^ ROR32(x, 19) ^ SHR32(x, 10))
 
 
 int main()
