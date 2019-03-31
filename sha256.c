@@ -50,7 +50,7 @@ void main(void)
 	shaInput = buf;
 	
 	Sha256_Calcuate(shaInput, sizeof(shaInput), shaOutput);
-    printf(" %s",shaOutput);
+    printf("sha from imput file is %s",shaOutput);
 	
 
 }
